@@ -90,6 +90,70 @@ Node.create = function (type, attr = {}, innerHTML) {
     if (innerHTML != undefined) element.innerHTML = innerHTML
     return element
 }
+Node.selectElement = "ELEMENT"
+Node.selectComment = "COMMENT"
+
+Node.prototype.select = function (filter, show = "ELEMENT") {
+    if (typeof filter == "string") {
+        return this.querySelectorAll(filter)
+    } else if (typeof filter == "function") {
+        let nodeIterator = document.createNodeIterator(this, NodeFilter["SHOW_" + show], {
+            acceptNode: (node) => filter(node) == true ? NodeFilter.FILTER_ACCEPT : null
+        })
+        let node, list = {}, i = 0
+        while (node = nodeIterator.nextNode()) {
+            list[i] = { value: node, enumerable: true }
+            i++
+        }
+        list.length = { value: i }
+        list.item = {
+            "value": function (i) {
+                return this[i || 0];
+            },
+            enumerable: true
+        }
+        return Object.create(document.createDocumentFragment().childNodes, list)
+    }
+}
+
+// NODE LIST
+
+NodeList.prototype.setStyle = function (style) {
+    if (!style) return this
+    for (var el = 0; el < this.length; el++)
+        for (var property in style) {
+            if (typeof style[property] == "function") {
+                this[el].style[property] = style[property](this[el].style[property])
+            } else {
+                this[el].style[property] = style[property]
+            }
+        }
+}
+
+Object.defineProperty(NodeList.prototype, "style", {
+    set: function (style) {
+        for (var el = 0; el < this.length; el++)
+            for (var property in style) {
+                if (typeof style[property] == "function") {
+                    this[el].style[property] = style[property](this[el].style[property])
+                } else {
+                    this[el].style[property] = style[property]
+                }
+            }
+    }
+})
+
+Object.defineProperty(NodeList.prototype, "commonParent", {
+    get: function () {
+        if (this.length == 0) return false
+        let parent = this[0].parentNode
+        if (this.length == 1) return parent
+        for (let i = 0; i < this.length; i++) {
+            if (parent != this[i].parentNode) return false
+        }
+        return parent
+    }
+})
 
 // DATE
 
