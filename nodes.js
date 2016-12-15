@@ -79,17 +79,43 @@ Node.prototype.createBindList = function (interpreter, filter = () => true) {
     this.filter = (func) => {
         set(fullList, func || filter)
     }
+    this.hasBindList = true
     return this
-}
+};
 
-Node.create = function (type, attr = {}, innerHTML) {
-    let element = document.createElement(typeof type == "string" ? type : "div")
-    if (typeof type == "object") attr = type
-    if (attr && typeof attr !== "object") element.innerHTML = attr
-    else for (let a in attr) element.setAttribute(a, attr[a])
-    if (innerHTML != undefined) element.innerHTML = innerHTML
-    return element
-}
+(function () {
+
+    const tags = [], creators = []
+
+    Node.create = function (type, attr = {}, innerHTML) {
+        if (type != undefined && tags.indexOf(type) != -1) {
+            Array.prototype.shift.apply(arguments)
+            return creators[tags.indexOf(type)](...arguments)
+        } else {
+            let element = document.createElement(typeof type == "string" ? type : "div")
+            if (typeof type == "object") attr = type
+            if (attr && typeof attr !== "object") element.innerHTML = attr
+            else for (let a in attr) element.setAttribute(a, attr[a])
+            if (innerHTML != undefined) element.innerHTML = innerHTML
+            return element
+        }
+    }
+
+    Node.define = function (tag, creator) {
+        if (!tag || !creator)
+            throw new Error(`Can't define ${tag}!`)
+        if (tags.indexOf(tag) != -1)
+            throw new Error(`Node ${tag} is already defined!`)
+        tags.push(tag)
+        creators.push((args) => {
+            let c = creator(args)
+            c.className = tag
+            return c
+        })
+    }
+
+})()
+
 Node.selectElement = "ELEMENT"
 Node.selectComment = "COMMENT"
 
@@ -102,33 +128,20 @@ Node.prototype.select = function (filter, show = "ELEMENT") {
         })
         let node, list = {}, i = 0
         while (node = nodeIterator.nextNode()) {
-            list[i] = { value: node, enumerable: true }
+            list[i] = { value: node }
             i++
         }
         list.length = { value: i }
         list.item = {
             "value": function (i) {
                 return this[i || 0];
-            },
-            enumerable: true
+            }
         }
         return Object.create(document.createDocumentFragment().childNodes, list)
     }
 }
 
 // NODE LIST
-
-NodeList.prototype.setStyle = function (style) {
-    if (!style) return this
-    for (var el = 0; el < this.length; el++)
-        for (var property in style) {
-            if (typeof style[property] == "function") {
-                this[el].style[property] = style[property](this[el].style[property])
-            } else {
-                this[el].style[property] = style[property]
-            }
-        }
-}
 
 Object.defineProperty(NodeList.prototype, "style", {
     set: function (style) {
@@ -200,23 +213,3 @@ Array.difference = function (oldA, newA) {
     }
     return difference
 }
-
-const app = document.getElementById("app"),
-    filter = document.getElementById("filter")
-
-app.createBindList(x =>
-    Node.create("div", { class: "cli" }, x).on("click", function () {
-        app.filter(x => x % this.innerHTML == 0)
-        filter.value = this.innerHTML
-    })
-)
-
-let list = []
-for (let i = 0; i < 10000; i++) {
-    list.push(i)
-}
-app.bindList = list
-
-filter.on("keyup", (e) => {
-    app.filter(x => x % e.target.value == 0)
-})

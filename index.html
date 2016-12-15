@@ -28,7 +28,22 @@
                 left: 50%;
                 transform: translateX(-50%)
             }
-
+            .person {
+                display: inline-block;
+                border: solid;
+                margin: 5px
+            }
+            .person div{
+                display: inline-block;
+                margin: 5px
+            }
+            #json{
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                max-width: Calc(100% - 40px);
+                max-height: Calc(100% - 40px);
+            }
         </style>
     </head>
 
@@ -36,12 +51,16 @@
         <header>
             Simple filtering 10000 DOM elements using array diffrence technic enjoy :D <br>
             by <a href="https://www.facebook.com/maciej.kozieja.9"><b>Maciej Kozieja</b></a>
+            <div>
+                <button id="example_filter">filter list</button>
+                <button id="example_node">define node</button>
+            </div>
         </header>
-        <div id="app">
-            <!-- comment -->
-        </div>
+        <div id="app"></div>
         <input type="text" id="filter">
+        <textarea id="json"></textarea>
         <script src="./nodes.js"></script>
+        <script src="./script.js"></script>
     </body>
 
 </html>
