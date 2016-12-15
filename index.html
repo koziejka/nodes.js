@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title></title>
+        <meta charset="utf-8">
+        <style>
+            body {
+                margin: 0;
+                font-family: sans-serif;
+                text-align: center
+            }
+
+            .cli {
+                display: inline-block;
+                height: 40px;
+                width: 40px;
+                line-height: 40px;
+                text-align: center;
+                background-color: blanchedalmond;
+                border: solid;
+                margin: 5px;
+            }
+
+            #filter {
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%)
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <header>
+            Simple filtering 10000 DOM elements using array diffrence technic enjoy :D <br>
+            by <a href="https://www.facebook.com/maciej.kozieja.9"><b>Maciej Kozieja</b></a>
+        </header>
+        <div id="app"></div>
+        <input type="text" id="filter">
+        <script src="./nodes.js"></script>
+    </body>
+
+</html>
